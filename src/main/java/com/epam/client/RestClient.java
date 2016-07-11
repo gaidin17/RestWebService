@@ -1,14 +1,11 @@
 package com.epam.client;
 
-
 import com.epam.domain.Person;
 import com.epam.domain.Ticket;
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.GenericType;
 import com.sun.jersey.api.client.WebResource;
-import com.sun.jersey.api.client.config.ClientConfig;
-import com.sun.jersey.api.client.config.DefaultClientConfig;
 
 import javax.ws.rs.core.MediaType;
 import java.util.Date;
@@ -24,52 +21,60 @@ public class RestClient {
     private static final String RETURN_TICKET = "http://localhost:8033/RestServiceTask/rest/returnTicket/";
 
     public static void main(String[] args) {
-        ClientConfig config = new DefaultClientConfig();
-        Client client = Client.create(config);
-        System.out.println(getTickets(client));
 
-        List<Ticket> tickets = getTickets(client);
-        System.out.println(tickets.size());
+        Client client = Client.create();
 
         Person person = new Person("Vasiliy", "Alibabaevich", "Abdulaev", new Date());
-
-        String bookingId = bookTicket(client, String.valueOf(tickets.get(0).getTicketId()), person);
-        System.out.println(bookingId);
-
-        if (isIdInteger(bookingId)) {
-            String response = payTicket(client, bookingId);
-            System.out.println(response);
-
-            response = returnTicket(client, bookingId);
-            System.out.println(response);
+        List<Ticket> tickets = getTickets(client);
+        for (Ticket ticket : tickets) {
+            System.out.println("ticketId: " + ticket.getTicketId());
         }
+        System.out.println();
+
+        try {
+            Ticket ticket = bookTicket(client, 0, person);
+            int ticketId = ticket.getTicketId();
+            int bookingId = ticket.getBookingId();
+            System.out.println("ticketId: " + ticketId);
+            System.out.println("bookingId: " + bookingId);
+            System.out.println();
+
+            System.out.println("Ticket is paid: " + payTicket(client, bookingId));
+
+            System.out.println("Ticket is returned: " + returnTicket(client, bookingId));
+        } catch (Exception ex) {
+            ex.getMessage();
+        }
+
+
     }
 
     private static List<Ticket> getTickets(Client client) {
         WebResource webResource = client.resource(ALL_AVAILABLE_TICKETS);
-        ClientResponse response = webResource.type(MediaType.APPLICATION_XML).get(ClientResponse.class);
+        ClientResponse response = webResource.type("application/xml").get(ClientResponse.class);
         return response.getEntity(new GenericType<List<Ticket>>() {
         });
     }
 
-    private static String bookTicket(Client client, String id, Person person) {
+
+    private static Ticket bookTicket(Client client, int id, Person person) {
         WebResource webResource = client.resource(BOOK_TICKET + id);
-        ClientResponse response = webResource.type(MediaType.APPLICATION_XML).post(ClientResponse.class, person);
-        return response.getEntity(String.class);
+        ClientResponse response = webResource.type(MediaType.APPLICATION_XML).put(ClientResponse.class, person);
+        return response.getEntity(Ticket.class);
     }
 
-    private static String payTicket(Client client, String bookingId) {
-        WebResource webResource = client.resource(PAY_TICKET);
+    private static Boolean payTicket(Client client, int bookingId) {
+        WebResource webResource = client.resource(PAY_TICKET + bookingId);
         System.out.println(PAY_TICKET);
-        ClientResponse response = webResource.type(MediaType.TEXT_HTML).post(ClientResponse.class, bookingId);
-        return response.getEntity(String.class);
+        ClientResponse response = webResource.put(ClientResponse.class);
+        return (Boolean.getBoolean(response.getEntity(String.class)));
     }
 
-    private static String returnTicket(Client client, String bookingId) {
+    private static Boolean returnTicket(Client client, int bookingId) {
         WebResource webResource = client.resource(RETURN_TICKET + bookingId);
         System.out.println(RETURN_TICKET + bookingId);
-        ClientResponse response = webResource.type(MediaType.TEXT_HTML).get(ClientResponse.class);
-        return response.getEntity(String.class);
+        ClientResponse response = webResource.delete(ClientResponse.class);
+        return Boolean.getBoolean(response.getEntity(String.class));
     }
 
     private static boolean isIdInteger(String id) {

@@ -31,7 +31,7 @@ public class BookingService {
         return ticketService.getTickets();
     }
 
-    public int bookTicket(Ticket ticket, Person person) {
+    public Ticket bookTicket(Ticket ticket, Person person) {
         if (ticketService.getTicketById(ticket.getTicketId()) == null) {
             logger.warn("Ticket with id = {} is booked allready or not exist", ticket.getTicketId());
             throw new BookingException("This Ticket is booked allready or not exist");
@@ -42,7 +42,7 @@ public class BookingService {
         bookedTickets.add(ticket);
         ticketService.removeTicket(ticket.getTicketId());
         logger.info("Ticket with id = {} is successfully booked. BookingId = {}", ticket.getTicketId(), ticket.getBookingId());
-        return ticket.getBookingId();
+        return ticket;
     }
 
     public Ticket getTicketByBookingId(int bookingId) {
@@ -57,10 +57,10 @@ public class BookingService {
 
     public void payTicket(int bookingId) {
         Ticket ticket = getTicketByBookingId(bookingId);
-        if (ticket.getTicketState().equals(TicketState.BOOKED)) {
+        if (ticket != null && ticket.getTicketState().equals(TicketState.BOOKED)){
             ticket.setTicketState(TicketState.PAID);
             logger.info("Ticket with bookingId = {} was successfully paid", bookingId);
-        } else {
+        }else{
             throw new BookingException("This Ticket is booked allready or not exist");
         }
     }

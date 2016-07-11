@@ -34,10 +34,6 @@ public class TicketService {
         return tickets;
     }
 
-    public void setTickets(List<Ticket> tickets) {
-        this.tickets = tickets;
-    }
-
     public void addTicket(Ticket ticket) {
         tickets.add(ticket);
     }

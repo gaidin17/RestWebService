@@ -26,7 +26,6 @@ public class Person {
     }
 
 
-
     @XmlElement
     public String getName() {
         return name;
@@ -45,5 +44,21 @@ public class Person {
     @XmlElement
     public Date getBirthDate() {
         return birthDate;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setPatronymic(String patronymic) {
+        this.patronymic = patronymic;
+    }
+
+    public void setSurName(String surName) {
+        this.surName = surName;
+    }
+
+    public void setBirthDate(Date birthDate) {
+        this.birthDate = birthDate;
     }
 }
