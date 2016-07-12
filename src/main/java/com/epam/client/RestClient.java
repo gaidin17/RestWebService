@@ -2,6 +2,7 @@ package com.epam.client;
 
 import com.epam.domain.Person;
 import com.epam.domain.Ticket;
+import com.epam.exceptions.BookingException;
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.GenericType;
@@ -30,23 +31,18 @@ public class RestClient {
             System.out.println("ticketId: " + ticket.getTicketId());
         }
         System.out.println();
-
         try {
             Ticket ticket = bookTicket(client, 0, person);
-            int ticketId = ticket.getTicketId();
             int bookingId = ticket.getBookingId();
-            System.out.println("ticketId: " + ticketId);
             System.out.println("bookingId: " + bookingId);
             System.out.println();
-
-            System.out.println("Ticket is paid: " + payTicket(client, bookingId));
-
-            System.out.println("Ticket is returned: " + returnTicket(client, bookingId));
-        } catch (Exception ex) {
-            ex.getMessage();
+            ticket = payTicket(client, bookingId);
+            System.out.println(ticket.getTicketState());
+            ticket = returnTicket(client, bookingId);
+            System.out.println(ticket.getTicketState());
+        } catch (BookingException ex) {
+            System.out.println(ex.getMessage());
         }
-
-
     }
 
     private static List<Ticket> getTickets(Client client) {
@@ -57,32 +53,33 @@ public class RestClient {
     }
 
 
-    private static Ticket bookTicket(Client client, int id, Person person) {
+    private static Ticket bookTicket(Client client, int id, Person person) throws BookingException {
         WebResource webResource = client.resource(BOOK_TICKET + id);
         ClientResponse response = webResource.type(MediaType.APPLICATION_XML).put(ClientResponse.class, person);
+        if (response.getStatus() != 200) {
+            throw new BookingException(response.getEntity(String.class));
+        }
+        System.out.println(response.getStatus());
         return response.getEntity(Ticket.class);
     }
 
-    private static Boolean payTicket(Client client, int bookingId) {
+    private static Ticket payTicket(Client client, int bookingId) throws BookingException {
         WebResource webResource = client.resource(PAY_TICKET + bookingId);
-        System.out.println(PAY_TICKET);
+        System.out.println(PAY_TICKET + bookingId);
         ClientResponse response = webResource.put(ClientResponse.class);
-        return (Boolean.getBoolean(response.getEntity(String.class)));
+        if (response.getStatus() != 200) {
+            throw new BookingException(response.getEntity(String.class));
+        }
+        return response.getEntity(Ticket.class);
     }
 
-    private static Boolean returnTicket(Client client, int bookingId) {
+    private static Ticket returnTicket(Client client, int bookingId) throws BookingException {
         WebResource webResource = client.resource(RETURN_TICKET + bookingId);
         System.out.println(RETURN_TICKET + bookingId);
         ClientResponse response = webResource.delete(ClientResponse.class);
-        return Boolean.getBoolean(response.getEntity(String.class));
-    }
-
-    private static boolean isIdInteger(String id) {
-        try {
-            Integer.parseInt(id);
-            return true;
-        } catch (Exception ex) {
-            return false;
+        if (response.getStatus() != 200) {
+            throw new BookingException(response.getEntity(String.class));
         }
+        return response.getEntity(Ticket.class);
     }
 }

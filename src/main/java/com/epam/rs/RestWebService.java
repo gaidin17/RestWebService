@@ -2,6 +2,8 @@ package com.epam.rs;
 
 import com.epam.domain.Person;
 import com.epam.domain.Ticket;
+import com.epam.exceptions.BookingException;
+import com.epam.exceptions.WebApplicationBookingException;
 import com.epam.services.BookingService;
 
 import java.util.List;
@@ -21,35 +23,37 @@ public class RestWebService {
 
     @PUT
     @Produces(MediaType.APPLICATION_XML)
-    @Consumes(MediaType.APPLICATION_XML)
     @Path("/bookTicket/{id}")
     public Ticket bookTicket(@PathParam("id") String id, Person person) {
-        Ticket ticket = bookingService.getTicketById(Integer.parseInt(id));
-        Ticket ticket1 = bookingService.bookTicket(ticket, person);
-        return ticket1;
+        try {
+            Ticket ticket = bookingService.getTicketById(Integer.parseInt(id));
+            System.out.println(ticket);
+            return bookingService.bookTicket(ticket, person);
+        } catch (BookingException ex) {
+            throw new WebApplicationBookingException(ex.getMessage());
+        }
     }
 
     @PUT
-    @Path("/payTicket/{bookingid}")
-    @Produces(MediaType.TEXT_PLAIN)
-    public String payTicket(@PathParam("bookingId") String bookingId) {
+    @Produces(MediaType.APPLICATION_XML)
+    @Path("/payTicket/{bookingId}")
+    public Ticket payTicket(@PathParam("bookingId") String bookingId) {
         try {
-            bookingService.payTicket(Integer.parseInt(bookingId));
-            return String.valueOf(Boolean.TRUE);
-        } catch (Exception ex) {
-            return String.valueOf(Boolean.FALSE);
+            System.out.println("bookingId" + bookingId);
+            return bookingService.payTicket(Integer.parseInt(bookingId));
+        } catch (BookingException ex) {
+            throw new WebApplicationBookingException(ex.getMessage());
         }
     }
 
     @DELETE
-    @Path("/returnTicket/{bookingid}")
-    @Produces(MediaType.TEXT_PLAIN)
-    public String returnTicket(@PathParam("bookingid") String bookingId) {
+    @Produces(MediaType.APPLICATION_XML)
+    @Path("/returnTicket/{bookingId}")
+    public Ticket returnTicket(@PathParam("bookingId") String bookingId) {
         try {
-            bookingService.returnTicket(Integer.parseInt(bookingId));
-            return String.valueOf(Boolean.TRUE);
-        } catch (Exception ex) {
-            return String.valueOf(Boolean.FALSE);
+            return bookingService.returnTicket(Integer.parseInt(bookingId));
+        } catch (BookingException ex) {
+            throw new WebApplicationBookingException(ex.getMessage());
         }
     }
 }

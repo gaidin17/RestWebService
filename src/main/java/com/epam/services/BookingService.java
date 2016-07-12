@@ -31,9 +31,9 @@ public class BookingService {
         return ticketService.getTickets();
     }
 
-    public Ticket bookTicket(Ticket ticket, Person person) {
-        if (ticketService.getTicketById(ticket.getTicketId()) == null) {
-            logger.warn("Ticket with id = {} is booked allready or not exist", ticket.getTicketId());
+    public Ticket bookTicket(Ticket ticket, Person person) throws BookingException {
+        if (ticket == null) {
+            logger.warn("Ticket is booked allready or not exist");
             throw new BookingException("This Ticket is booked allready or not exist");
         }
         ticket.setBookingId(generateBookId());
@@ -45,27 +45,28 @@ public class BookingService {
         return ticket;
     }
 
-    public Ticket getTicketByBookingId(int bookingId) {
+    public Ticket getTicketByBookingId(int bookingId) throws BookingException {
         for (Ticket ticket : bookedTickets) {
             if (ticket.getBookingId() == bookingId) {
                 return ticket;
             }
         }
         logger.warn("BookingId = {} is not exist in system", bookingId);
-        return null;
+        throw new BookingException("This Ticket is not exist in system");
     }
 
-    public void payTicket(int bookingId) {
+    public Ticket payTicket(int bookingId) throws BookingException {
         Ticket ticket = getTicketByBookingId(bookingId);
-        if (ticket != null && ticket.getTicketState().equals(TicketState.BOOKED)){
+        if (ticket != null && ticket.getTicketState().equals(TicketState.BOOKED)) {
             ticket.setTicketState(TicketState.PAID);
             logger.info("Ticket with bookingId = {} was successfully paid", bookingId);
-        }else{
+            return ticket;
+        } else {
             throw new BookingException("This Ticket is booked allready or not exist");
         }
     }
 
-    public void returnTicket(int bookingId) {
+    public Ticket returnTicket(int bookingId) throws BookingException {
         Ticket ticket = getTicketByBookingId(bookingId);
         if (ticket == null) {
             throw new BookingException("This Ticket is booked allready or not exist");
@@ -74,6 +75,7 @@ public class BookingService {
         bookedTickets.remove(ticket);
         ticketService.addTicket(ticket);
         logger.info("Tisket with BookingId = {} was successfully returned", bookingId);
+        return ticket;
     }
 
     public Ticket getTicketById(int id) {
