@@ -59,13 +59,11 @@ public class RestClient {
         if (response.getStatus() != 200) {
             throw new BookingException(response.getEntity(String.class));
         }
-        System.out.println(response.getStatus());
         return response.getEntity(Ticket.class);
     }
 
     private static Ticket payTicket(Client client, int bookingId) throws BookingException {
         WebResource webResource = client.resource(PAY_TICKET + bookingId);
-        System.out.println(PAY_TICKET + bookingId);
         ClientResponse response = webResource.put(ClientResponse.class);
         if (response.getStatus() != 200) {
             throw new BookingException(response.getEntity(String.class));
@@ -75,7 +73,6 @@ public class RestClient {
 
     private static Ticket returnTicket(Client client, int bookingId) throws BookingException {
         WebResource webResource = client.resource(RETURN_TICKET + bookingId);
-        System.out.println(RETURN_TICKET + bookingId);
         ClientResponse response = webResource.delete(ClientResponse.class);
         if (response.getStatus() != 200) {
             throw new BookingException(response.getEntity(String.class));

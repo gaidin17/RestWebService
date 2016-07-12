@@ -27,7 +27,6 @@ public class RestWebService {
     public Ticket bookTicket(@PathParam("id") String id, Person person) {
         try {
             Ticket ticket = bookingService.getTicketById(Integer.parseInt(id));
-            System.out.println(ticket);
             return bookingService.bookTicket(ticket, person);
         } catch (BookingException ex) {
             throw new WebApplicationBookingException(ex.getMessage());
@@ -39,7 +38,6 @@ public class RestWebService {
     @Path("/payTicket/{bookingId}")
     public Ticket payTicket(@PathParam("bookingId") String bookingId) {
         try {
-            System.out.println("bookingId" + bookingId);
             return bookingService.payTicket(Integer.parseInt(bookingId));
         } catch (BookingException ex) {
             throw new WebApplicationBookingException(ex.getMessage());
