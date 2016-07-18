@@ -19,7 +19,7 @@ public class RestWebService {
     @Path("/getAllTickets/")
     @Produces(MediaType.APPLICATION_XML)
     public List<Ticket> getAllAvailableTickets() {
-        return Collections.unmodifiableList(bookingService.getAllTickets());
+        return bookingService.getAllTickets();
     }
 
     @PUT
