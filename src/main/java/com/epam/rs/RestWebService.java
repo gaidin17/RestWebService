@@ -6,6 +6,7 @@ import com.epam.exceptions.BookingException;
 import com.epam.exceptions.WebApplicationBookingException;
 import com.epam.services.BookingService;
 
+import java.util.Collections;
 import java.util.List;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
@@ -18,7 +19,7 @@ public class RestWebService {
     @Path("/getAllTickets/")
     @Produces(MediaType.APPLICATION_XML)
     public List<Ticket> getAllAvailableTickets() {
-        return bookingService.getAllTickets();
+        return Collections.unmodifiableList(bookingService.getAllTickets());
     }
 
     @PUT
@@ -34,22 +35,24 @@ public class RestWebService {
     }
 
     @PUT
+    @Consumes(MediaType.APPLICATION_XML)
     @Produces(MediaType.APPLICATION_XML)
-    @Path("/payTicket/{bookingId}")
-    public Ticket payTicket(@PathParam("bookingId") int bookingId) {
+    @Path("/payTicket/")
+    public Ticket payTicket(Ticket ticket) {
         try {
-            return bookingService.payTicket(bookingId);
+            return bookingService.payTicket(ticket.getBookingId());
         } catch (BookingException ex) {
             throw new WebApplicationBookingException(ex.getMessage());
         }
     }
 
     @DELETE
+    @Consumes(MediaType.APPLICATION_XML)
     @Produces(MediaType.APPLICATION_XML)
-    @Path("/returnTicket/{bookingId}")
-    public Ticket returnTicket(@PathParam("bookingId") int bookingId) {
+    @Path("/returnTicket/")
+    public Ticket returnTicket(Ticket ticket) {
         try {
-            return bookingService.returnTicket(bookingId);
+            return bookingService.returnTicket(ticket.getBookingId());
         } catch (BookingException ex) {
             throw new WebApplicationBookingException(ex.getMessage());
         }

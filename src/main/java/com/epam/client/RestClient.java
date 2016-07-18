@@ -36,9 +36,9 @@ public class RestClient {
             int bookingId = ticket.getBookingId();
             System.out.println("bookingId: " + bookingId);
             System.out.println();
-            ticket = payTicket(client, bookingId);
+            ticket = payTicket(client, ticket);
             System.out.println(ticket.getTicketState());
-            ticket = returnTicket(client, bookingId);
+            ticket = returnTicket(client, ticket);
             System.out.println(ticket.getTicketState());
         } catch (BookingException ex) {
             System.out.println(ex.getMessage());
@@ -62,18 +62,18 @@ public class RestClient {
         return response.getEntity(Ticket.class);
     }
 
-    private static Ticket payTicket(Client client, int bookingId) throws BookingException {
-        WebResource webResource = client.resource(PAY_TICKET + bookingId);
-        ClientResponse response = webResource.put(ClientResponse.class);
+    private static Ticket payTicket(Client client, Ticket ticket) throws BookingException {
+        WebResource webResource = client.resource(PAY_TICKET);
+        ClientResponse response = webResource.type(MediaType.APPLICATION_XML).put(ClientResponse.class, ticket);
         if (response.getStatus() != 200) {
             throw new BookingException(response.getEntity(String.class));
         }
         return response.getEntity(Ticket.class);
     }
 
-    private static Ticket returnTicket(Client client, int bookingId) throws BookingException {
-        WebResource webResource = client.resource(RETURN_TICKET + bookingId);
-        ClientResponse response = webResource.delete(ClientResponse.class);
+    private static Ticket returnTicket(Client client, Ticket ticket) throws BookingException {
+        WebResource webResource = client.resource(RETURN_TICKET);
+        ClientResponse response = webResource.type(MediaType.APPLICATION_XML).delete(ClientResponse.class, ticket);
         if (response.getStatus() != 200) {
             throw new BookingException(response.getEntity(String.class));
         }
