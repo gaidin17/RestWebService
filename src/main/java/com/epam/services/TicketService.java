@@ -1,6 +1,7 @@
 package com.epam.services;
 
 import com.epam.domain.Ticket;
+import com.epam.exceptions.BookingException;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -38,13 +39,13 @@ public class TicketService {
         tickets.add(ticket);
     }
 
-    public Ticket getTicketById(int id) {
+    public Ticket getTicketById(int id) throws BookingException {
         for (Ticket ticket : tickets) {
             if (ticket.getTicketId() == id) {
                 return ticket;
             }
         }
-        return null;
+        throw new BookingException("Ticket is booked allready or not exist");
     }
 
     public void removeTicket(int id) {

@@ -24,9 +24,9 @@ public class RestWebService {
     @PUT
     @Produces(MediaType.APPLICATION_XML)
     @Path("/bookTicket/{id}")
-    public Ticket bookTicket(@PathParam("id") String id, Person person) {
+    public Ticket bookTicket(@PathParam("id") int id, Person person) {
         try {
-            Ticket ticket = bookingService.getTicketById(Integer.parseInt(id));
+            Ticket ticket = bookingService.getTicketById(id);
             return bookingService.bookTicket(ticket, person);
         } catch (BookingException ex) {
             throw new WebApplicationBookingException(ex.getMessage());
@@ -36,9 +36,9 @@ public class RestWebService {
     @PUT
     @Produces(MediaType.APPLICATION_XML)
     @Path("/payTicket/{bookingId}")
-    public Ticket payTicket(@PathParam("bookingId") String bookingId) {
+    public Ticket payTicket(@PathParam("bookingId") int bookingId) {
         try {
-            return bookingService.payTicket(Integer.parseInt(bookingId));
+            return bookingService.payTicket(bookingId);
         } catch (BookingException ex) {
             throw new WebApplicationBookingException(ex.getMessage());
         }
@@ -47,9 +47,9 @@ public class RestWebService {
     @DELETE
     @Produces(MediaType.APPLICATION_XML)
     @Path("/returnTicket/{bookingId}")
-    public Ticket returnTicket(@PathParam("bookingId") String bookingId) {
+    public Ticket returnTicket(@PathParam("bookingId") int bookingId) {
         try {
-            return bookingService.returnTicket(Integer.parseInt(bookingId));
+            return bookingService.returnTicket(bookingId);
         } catch (BookingException ex) {
             throw new WebApplicationBookingException(ex.getMessage());
         }
